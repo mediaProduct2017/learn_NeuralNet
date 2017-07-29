@@ -1,0 +1,18 @@
+
+<html>
+<head>
+	<script src="hdr.js"></script>
+</head>
+<body onload="hdrDemo.onLoadFunction()">
+	<div id="main-container" style="text-align: center;">
+		<h1>Hand-written Digit Recognition</h1>
+		<canvas id="canvas" width="200" height="200"></canvas>
+		<form name="input">
+			<p>Digit: <input id="digit" type="text"> </p>
+			<input type="button" value="Train" onclick="hdrDemo.train()">
+			<input type="button" value="Test" onclick="hdrDemo.test()">
+			<input type="button" value="Reset" onclick="hdrDemo.resetCanvas();">
+		</form> 
+	</div>
+</body>
+</html>
