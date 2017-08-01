@@ -1,5 +1,7 @@
 # learn_NeuralNet
 
+前面几层的activation function一般用logistic function来计算，最后一层可以用logistic function来计算概率（没有归一化的概率，一类一类来看，哪一类的概率最大就预测是哪一类），也可以用softmax function来计算概率（归一化的概率，统一来看，哪一类的概率最大就预测是哪一类）。
+
 ## 1. Cost function and logistic regression
 
 ![Cost function and logistic regression](images/logistic.png)
