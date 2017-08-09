@@ -15,3 +15,7 @@
 ![Cost function and softmax regression](images/softmax.png)
 
 C个feature，每个feature的维度是d（对于图像识别，是C个分类，d个像素点）。W.x是线性函数的矩阵形式。
+
+## 3. Wholly linked neural network
+
+此处使用的neural network是wholly linked neural network，没有额外的assumption，完全根据数据来拟合系数参数，是理论上最正确的一种neural network，但因为所需数据较多，计算量较大，实用价值较小。
