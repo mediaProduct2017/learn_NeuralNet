@@ -30,4 +30,8 @@ neural network的强大之处在于，多个线性boundary的结合可以模拟�
 
 线性规划的意义和neural network的意义是类似的，虽然实际情况是非线性的，但在线性规划中，通过设置多条直线的boundary，可以模拟非线性情况，所以，线性规划在运筹学中的应用才能如此广泛。
 
+## 6. Neural net用于连续值的建模
 
+Neural net不只可以用于分类（无序类或有序类），也可以用于连续值的预测。
+
+传统上，连续值的建模只是使用简单的linear regresssion. 实际上，可以使用neural net来抓住问题中的非线性特征，在最后一层output中，可以使用$f(x)=x$这个简单的activation function（之前各层的activation function仍然使用常用的sigmoid function），就可以得到连续的预测值，而且预测值的范围可以从无穷小到无穷大，不再局限于（0，1）。
