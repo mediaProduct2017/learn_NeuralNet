@@ -75,3 +75,11 @@ We can use Mean Square Error for regression (continuous prediction) and cross en
 Mean Square Error corresponds to Sum Square Error. 
 
 Cross Entropy Error corresponds to number of prediction mistankes, number of false positives, number of false negatives.
+
+## 9. neural net和deep learning所解决的问题
+
+长期以来，统计模型和很多机器学习模型的问题在于，总是尝试在线性模型的框架内解决问题。世界是非线性的，线性模型当然是没法很好的解决问题的，这时候，统计模型并没有直面非线性这个问题，而是在线性模型上加上了一个随机项（比如linear mixed model），随机性当然是模型不够准确的一个原因，但绝对不是最主要的原因（非线性是主要原因），把主要的研究精力放在随机性上，大方向就错掉了。
+
+还有一些机器学习模型，比如support vector machine，虽然可以引入非线性，但因为函数结构不是很灵活，并不能逼近、模拟所有的非线性函数，所以效果也一般。
+
+neural net和deep learning的威力在于，通过选择不同的层数、每一层不同的node数、不同的activation function，几乎可以逼近、模拟所有的非线性函数，所以效果非常好。
