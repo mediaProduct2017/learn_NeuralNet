@@ -24,6 +24,8 @@ C个feature，每个feature的维度是d（对于图像识别，是C个分类，
 
 最终的output的error是预测值（对真实值）的偏离，但这种偏离不只是由最后一层neuron造成的，而是由多层neuron累积而成的，所以，每一层neuron都存在其预测值的偏离，而这种预测值的偏离误差是可以用后一层的预测值的偏离误差计算出来的，计算公式就是back propagation的公式，这个公式在数学上是可以证明的。
 
+在计算back propagation时，最重要的搞清楚error和error term的算法。对于output layer, error就是实际值减去预测值，error term等于error乘以output layer的activation function derivative. 对于hidden layer, error可以由后一层的error term与两层之间的weights的矩阵乘法得到，error term同样等于error乘以hidden layer的activation function derivative. Gradient descent过程中weights的变化值，可以由前一层的输出值与后一层的error term之间的矩阵乘法得到。
+
 forward propagation: calculate the prediction function; forward pass, calculate output from input; related - activation function, prediction function
 
 back propagation: calculate the gradient for gradient descent of loss function; back pass, calculate error term of layers from output error; related - error term, error function, loss function, cost function, objective function
@@ -56,7 +58,7 @@ First, you'll need to initialize the weights. We want these to be small such tha
 
 3. learning rate
 
-To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error.
+To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error. 在实际建模过程中，learning rate是从大往小试，如果使用的是Mean Square Error，一般从1开始试起。
 
 4. activation function and vanishing gradient
 
