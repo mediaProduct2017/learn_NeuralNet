@@ -48,29 +48,29 @@ The rank feature is categorical, the numbers don't encode any sort of relative v
 
 ## 8. Requirements of gradient decent
 
-1. Input data
+### (1). Input data
 
 We'll also need to standardize the GRE and GPA data, which means to scale the values such they have zero mean and a standard deviation of 1 (For normal distribution, 68% data are within the range of one standard deviation). This is necessary because the sigmoid function squashes really small and really large inputs. The gradient of really small and large inputs is zero, which means that the gradient descent step will go to zero too. Since the GRE and GPA values are fairly large, we have to be really careful about how we initialize the weights or the gradient descent steps will die off and the network won't train. Instead, if we standardize the data, we can initialize the weights easily and everyone is happy.
 
-2. weights
+### (2). weights
 
 First, you'll need to initialize the weights. We want these to be small such that the input to the sigmoid is in the linear region near 0 and not squashed at the high and low ends. It's also important to initialize them randomly so that they all have different starting values and diverge, breaking symmetry. So, we'll initialize the weights from a normal distribution centered at 0. A good value for the scale is 1/√n，where n is the number of input units. This keeps the input to the sigmoid low for increasing numbers of input units.
 
-3. learning rate
+### (3). learning rate
 
 To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error. 在实际建模过程中，learning rate是从大往小试，如果使用的是Mean Square Error，一般从1开始试起。
 
-4. activation function and vanishing gradient
+### (4). activation function and vanishing gradient
 
 The maximum derivative of the sigmoid function is 0.25, so the errors in the output layer get reduced by at least 75%, and errors in the hidden layer are scaled down by at least 93.75%! You can see that if you have a lot of layers, using a sigmoid activation function will quickly reduce the weight steps to tiny values in layers near the input. This is known as the vanishing gradient problem. Later in the course you'll learn about other activation functions that perform better in this regard and are more commonly used in modern network architectures.
 
-5. local minimum
+### (5). local minimum
 
 Since the weights will just go where ever the gradient takes them, they can end up where the error is low, but not the lowest. These spots are called local minima. If the weights are initialized with the wrong values, gradient descent could lead the weights into a local minimum.
 
 There are methods to avoid this, such as using [momentum](http://sebastianruder.com/optimizing-gradient-descent/index.html#momentum)
 
-6. cost function or loss function
+### (6). cost function or loss function
 
 We can use Mean Square Error for regression (continuous prediction) and cross entropy error for classification.
 
