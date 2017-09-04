@@ -82,4 +82,6 @@ Cross Entropy Error corresponds to number of prediction mistankes, number of fal
 
 还有一些机器学习模型，比如support vector machine，虽然可以引入非线性，但因为函数结构不是很灵活，并不能逼近、模拟所有的非线性函数，所以效果也一般。
 
-neural net和deep learning的威力在于，通过选择不同的层数、每一层不同的node数、不同的activation function，几乎可以逼近、模拟所有的非线性函数，所以效果非常好。
+neural net和deep learning的威力在于，通过选择不同的连接假设和拓扑结构（比如RNN、CNN和wholy linked network就有着不同的连接假设）、不同的层数、每一层不同的node数、不同的activation function，几乎可以逼近、模拟所有的非线性函数，所以效果非常好。
+
+一般的统计模型和机器学习模型，在建模时，是需要做feature selection的，也就是需要人为的去考虑模型机制，否则效果很差。对于deep learning，做feature selection的话当然效果也是更好的，但是，只要数据足够，不去人为的做feature selection也可以达到很好的效果，本质上是不再人为的去做feature selection，而是由程序去做feature selection.
