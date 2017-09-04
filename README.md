@@ -56,7 +56,7 @@ First, you'll need to initialize the weights. We want these to be small such tha
 
 3. learning rate
 
-To make learning rate between 0.001 and 0.01, we use Mean Square Error instead of Sum Square Error.
+To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error.
 
 4. activation function and vanishing gradient
 
@@ -85,3 +85,5 @@ Cross Entropy Error corresponds to number of prediction mistankes, number of fal
 neural net和deep learning的威力在于，通过选择不同的连接假设和拓扑结构（比如RNN、CNN和wholy linked network就有着不同的连接假设）、不同的层数、每一层不同的node数、不同的activation function，几乎可以逼近、模拟所有的非线性函数，所以效果非常好。
 
 一般的统计模型和机器学习模型，在建模时，是需要做feature selection的，也就是需要人为的去考虑模型机制，否则效果很差。对于deep learning，做feature selection的话当然效果也是更好的，但是，只要数据足够，不去人为的做feature selection也可以达到很好的效果，本质上是不再人为的去做feature selection，而是由程序去做feature selection.
+
+对于线性模型，有一个好处是，容易解释自变量对因变量的影响，如果系数为正，就是正的影响，如果系数为负，就是负的影响，如果系数很接近0，就表明影响很小。
