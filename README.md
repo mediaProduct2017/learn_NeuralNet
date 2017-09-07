@@ -6,6 +6,10 @@
 
 ![Cost function and logistic regression](images/logistic.png)
 
+Logistic regression和neural network的cost function除了用上面的形式外，其实也可以用最简单的mean squared error，实际值就是0或者1，预测值就是所得到的0到1的概率。
+
+不管cost function用上面的形式，还是用mean squared error，对实际的计算没有影响，因为上面cost function的gradient的计算公式与mean squared error的gradient的计算公式完全相同。
+
 ## 2. Forward propagtion, cost function and softmax regression
 
 当使用softmax regression作forward propagation时，最后一个layer是使用softmax function来计算，如果是k个分类，最后一层就有k个neuron，每个neuron的值就是exp（hx），然后将k个neuron的值进行归一化处理（除以k个neuron值的加和），k个neuron的值就变成了是每个分类的概率（k个概率的和为1）。最后，概率最大的那个neuron对应的分类作为预测的分类。
@@ -25,6 +29,8 @@ C个feature，每个feature的维度是d（对于图像识别，是C个分类，
 最终的output的error是预测值（对真实值）的偏离，但这种偏离不只是由最后一层neuron造成的，而是由多层neuron累积而成的，所以，每一层neuron都存在其预测值的偏离，而这种预测值的偏离误差是可以用后一层的预测值的偏离误差计算出来的，计算公式就是back propagation的公式，这个公式在数学上是可以证明的。
 
 在计算back propagation时，最重要的搞清楚error和error term的算法。对于output layer, error就是实际值减去预测值，error term等于error乘以output layer的activation function derivative. 对于hidden layer, error可以由后一层的error term与两层之间的weights的矩阵乘法得到，error term同样等于error乘以hidden layer的activation function derivative. Gradient descent过程中weights的变化值，可以由前一层的输出值与后一层的error term之间的矩阵乘法得到。
+
+Back propagation其实是根据反馈不管调整weights的过程，一般来说，要一组一组样本来做。得到的weights的变化值的维度与weights的维度完全相同。一组一组样本来做时，经常用到zip函数，zip可以把两个list转换成tuple形式，用在循环中。
 
 forward propagation: calculate the prediction function; forward pass, calculate output from input; related - activation function, prediction function
 
@@ -46,11 +52,15 @@ Neural net不只可以用于分类（无序类或有序类），也可以用于�
 
 The rank feature is categorical, the numbers don't encode any sort of relative values. Rank 2 is not twice as much as rank 1, rank 3 is not 1.5 more than rank 2. Instead, we need to use dummy variables to encode rank, splitting the data into four new columns encoded with ones or zeros. Rows with rank 1 have one in the rank 1 dummy column, and zeros in all other columns. Rows with rank 2 have one in the rank 2 dummy column, and zeros in all other columns. And so on.
 
+Pandas中有一个很好的函数get_dummies（pd.get_dummies），可以很方面的把categorical data转换成dummy variable. 之后也是使用pandas中的两个函数，concat用来把新的dummy variable连接在data frame中，drop用来去掉已经转换过的原来的列。
+
 ## 8. Requirements of gradient decent
 
 ### (1). Input data
 
 We'll also need to standardize the GRE and GPA data, which means to scale the values such they have zero mean and a standard deviation of 1 (For normal distribution, 68% data are within the range of one standard deviation). This is necessary because the sigmoid function squashes really small and really large inputs. The gradient of really small and large inputs is zero, which means that the gradient descent step will go to zero too. Since the GRE and GPA values are fairly large, we have to be really careful about how we initialize the weights or the gradient descent steps will die off and the network won't train. Instead, if we standardize the data, we can initialize the weights easily and everyone is happy.
+
+对于pandas的data frame中的列series来讲，可以用mean()和std()来直接作用于series求相应的值。
 
 ### (2). weights
 
@@ -78,6 +88,12 @@ Mean Square Error corresponds to Sum Square Error.
 
 Cross Entropy Error corresponds to number of prediction mistankes, number of false positives, number of false negatives.
 
+### (7). the number of hidden nodes
+
+The more hidden nodes you have, the more accurate predictions the model will make. Try a few different numbers and see how it affects the performance. You can look at the losses dictionary for a metric of the network performance. If the number of hidden units is too low, then the model won't have enough space to learn and if it is too high there are too many options for the direction that the learning can take. The trick here is to find the right balance in number of hidden units you choose.
+
+[how to decide the number of nodes in the hidden layer](https://www.quora.com/How-do-I-decide-the-number-of-nodes-in-a-hidden-layer-of-a-neural-network-I-will-be-using-a-three-layer-model)
+
 ## 9. neural net和deep learning所解决的问题
 
 长期以来，统计模型和很多机器学习模型的问题在于，总是尝试在线性模型的框架内解决问题。世界是非线性的，线性模型当然是没法很好的解决问题的，这时候，统计模型并没有直面非线性这个问题，而是在线性模型上加上了一个随机项（比如linear mixed model），随机性当然是模型不够准确的一个原因，但绝对不是最主要的原因（非线性是主要原因），把主要的研究精力放在随机性上，大方向就错掉了。
@@ -89,3 +105,19 @@ neural net和deep learning的威力在于，通过选择不同的连接假设和
 一般的统计模型和机器学习模型，在建模时，是需要做feature selection的，也就是需要人为的去考虑模型机制，否则效果很差。对于deep learning，做feature selection的话当然效果也是更好的，但是，只要数据足够，不去人为的做feature selection也可以达到很好的效果，本质上是不再人为的去做feature selection，而是由程序去做feature selection.
 
 对于线性模型，有一个好处是，容易解释自变量对因变量的影响，如果系数为正，就是正的影响，如果系数为负，就是负的影响，如果系数很接近0，就表明影响很小。
+
+## 10. unit test
+
+Neural network也可以设置unit test，一般测试data path, loaded data type, activation function, method for backpropagation and method for foward propagation.
+
+## 11. Validation
+
+Chosen of the number of iterations, the learning rate, the number of hidden nodes
+
+For model comlexity gragh, the x axis is the number of iterations, the y axis is training loss and validation loss.
+
+## 12. Check out the predictions with testing data
+
+Use the test data to view how well your network is modeling the data. If something is completely wrong here, make sure each step in your network is implemented correctly.
+
+不管对于prediction还是实际值，都把自变量与因变量的关系曲线画出来。
