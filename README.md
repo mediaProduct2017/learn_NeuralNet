@@ -1,6 +1,16 @@
 # learn_NeuralNet
 
+Neural network的本质是寻找input和output的相关性，传统上，相关性指的就是线性相关性，但Neural network可以找到非线性相关，这正是Neural network的强大之处。
+
 前面几层的activation function一般用logistic function来计算，最后一层可以用logistic function来计算概率（没有归一化的概率，一类一类来看，哪一类的概率最大就预测是哪一类），也可以用softmax function来计算概率（归一化的概率，统一来看，哪一类的概率最大就预测是哪一类）。
+
+各层的activation function的选择其实比较灵活，不一定非要用非线性函数，也可以简单就用$f(x)=x$这样的activation function。在两种情况下往往会用到linear layer:
+* 模型的输出是连续值，在这种情况下，output layer会使用linear layer
+* 模型在很大程度上用作input的feature detector，也就是，用input到hidden layer的weights组成一个高维向量来表示对应的input. 在这种情况下，hidden layer往往是用linear layer，而不用nonlinear layer.
+
+相比其他的机器学习模型，neural network在增强信噪比方面要强得多，所以，如果用neural network的话，有时候可以不去做feature selection，让neural network在训练过程中自己选择feature. 但是，这并不意味着信噪比对neural network不重要，如果可以人工减小信噪比的话，neural network训练的速度和准确度都会大大提升。减小输入的信噪比在任何的数学建模中都非常重要，否则就是garbage in garbage out.
+
+Neural net在众多的建模问题中非常管用，是一种新的建模技术（或者说，在大数据时代，被重新发现的建模技术），但是，依然有它主要适用的场景，比如图像、语言、自然语言理解、围棋等，并不意味着任何一个数学建模问题都应该用Neural net来解决。当前进展迅速的是Neural net能解决的数学建模问题，而不是所有的数学建模问题，因此，在学习时，要学习Neural net能解决的数学建模类型，而不是把所有的靠谱的、不靠谱的数学建模都学个遍。
 
 ## 1. Cost function and logistic regression
 
@@ -54,7 +64,13 @@ The rank feature is categorical, the numbers don't encode any sort of relative v
 
 Pandas中有一个很好的函数get_dummies（pd.get_dummies），可以很方面的把categorical data转换成dummy variable. 之后也是使用pandas中的两个函数，concat用来把新的dummy variable连接在data frame中，drop用来去掉已经转换过的原来的列。
 
+在处理完dummy variable之后，模型中除了连续的变量以外，就只剩0和1的数值了。对于dummy variable的某一列，在样本中要至少出现几百次才有意义，如果只出现几十次，这个dummy variable都没有存在的意义，可以直接drop.
+
+如果data frame中有除连续数值和0、1之外的其他值，比如一些字符串，可以写一个get_target_for_label()函数，函数的argument是字符串，return的结果是0或者1. 调用该函数就可以把字符串label转换为0和1.
+
 ## 8. Requirements of gradient decent
+
+A step function is the starkest form of a binary output, which is great, but step functions are not continuous and not differentiable, which is very bad. Differentiation is what makes gradient descent possible.
 
 ### (1). Input data
 
@@ -69,6 +85,8 @@ First, you'll need to initialize the weights. We want these to be small such tha
 ### (3). learning rate
 
 To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error. 在实际建模过程中，learning rate是从大往小试，如果使用的是Mean Square Error，一般从1开始试起。
+
+如果learning rate太大的话，training accuracy有可能始终很大，因为步长太长，导致在gradient descent的过程中没法取到minimal的值。这时候要减小learning rate.
 
 ### (4). activation function and vanishing gradient
 
@@ -93,6 +111,14 @@ Cross Entropy Error corresponds to number of prediction mistankes, number of fal
 The more hidden nodes you have, the more accurate predictions the model will make. Try a few different numbers and see how it affects the performance. You can look at the losses dictionary for a metric of the network performance. If the number of hidden units is too low, then the model won't have enough space to learn and if it is too high there are too many options for the direction that the learning can take. The trick here is to find the right balance in number of hidden units you choose.
 
 [how to decide the number of nodes in the hidden layer](https://www.quora.com/How-do-I-decide-the-number-of-nodes-in-a-hidden-layer-of-a-neural-network-I-will-be-using-a-three-layer-model)
+
+### (8). stochastic gradient descent and mini-batch gradient descent
+
+In practice, it's common to feed in multiple data examples in each forward pass rather than just 1. The reasoning for this is the examples can be processed in parallel, resulting in big performance gains. The number of examples is called the batch size. Common numbers for the batch size are 32, 64, 128, 256, 512. Generally, it's the most we can comfortably fit in memory.
+
+理论上讲，应该使用whole-batch gradient descent，在每次更新weights时，都使用所有样本来更新，但在实际上，当样本量非常大的时候，这是不可行的，所以就要使用stochastic gradient descent。在进行online training时，可以每次只使用一个样本，这也算stochastic gradient descent，更常用的是mini-batch gradient descent，就是每个iteration随机选取一定数量的样本来进行训练，比如，随机选取128个样本，然后用这128个样本的X和y来进行训练。
+
+在train函数中，用来存放样本的array不宜占太大的空间，要么就留mini-batch的样本大小，比如128行，要么，就只用一行，反复使用即可，否则的话，是对内存空间的极大浪费。
 
 ## 9. neural net和deep learning所解决的问题
 
@@ -121,3 +147,13 @@ For model comlexity gragh, the x axis is the number of iterations, the y axis is
 Use the test data to view how well your network is modeling the data. If something is completely wrong here, make sure each step in your network is implemented correctly.
 
 不管对于prediction还是实际值，都把自变量与因变量的关系曲线画出来。
+
+## 13. Neural noise
+
+不需要的feature加到input layer中，会增加noise。不需要的feaure的信息越多，noise越多，模型表现越差。总的来说，Neural net相比其他机器学习模型，更擅长过滤noise，但是，这并不意味着，对于所有类型的noise，neural net都更擅长过滤，有些类型的noise，其他模型过滤、处理起来反而更加擅长。
+
+## 14. Sparse input的处理
+
+在neural network中，input layer往往非常庞大，hidden layer和output的node数有限，所以input到hidden计算量很大，而hidden到output计算量有限。input layer存在很多0的时候，在计算上就有优化的余地。一方面，可以自己来优化，主要是两点，一是只算input为1的部分，二是input为1的话，可以直接把weights相加，不用算乘法了。用矩阵乘法的话，有可能numpy会自动进行上面提到的两点优化（不是很确定，担心的话，就自己优化）。
+
+在做back propagation更新weights的时候，也可以只更新input为1的node的weights，计算量会大大减小。
