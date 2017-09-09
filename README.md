@@ -38,7 +38,15 @@ C个feature，每个feature的维度是d（对于图像识别，是C个分类，
 
 最终的output的error是预测值（对真实值）的偏离，但这种偏离不只是由最后一层neuron造成的，而是由多层neuron累积而成的，所以，每一层neuron都存在其预测值的偏离，而这种预测值的偏离误差是可以用后一层的预测值的偏离误差计算出来的，计算公式就是back propagation的公式，这个公式在数学上是可以证明的。
 
-在计算back propagation时，最重要的搞清楚error和error term的算法。对于output layer, error就是实际值减去预测值，error term等于error乘以output layer的activation function derivative. 对于hidden layer, error可以由后一层的error term与两层之间的weights的矩阵乘法得到，error term同样等于error乘以hidden layer的activation function derivative. Gradient descent过程中weights的变化值，可以由前一层的输出值与后一层的error term之间的矩阵乘法得到。
+在计算back propagation时，最重要的搞清楚error和error term的算法。对于output layer, error就是实际值减去预测值，error term等于error乘以output layer的activation function derivative. 对于hidden layer, error可以由后一层的error term与两层之间的weights的矩阵乘法得到，error term同样等于error乘以hidden layer的activation function derivative. Gradient descent过程中weights的变化值，可以由前一层的输出值与后一层的error term之间的矩阵乘法得到（其实就是先求乘积后加和）。
+
+![Back propagation one](images/backpass.png)
+
+![Back propagation two](images/backpass2.png)
+
+Now we can see a clear pattern. To find the gradient, you just multiply the gradients for all nodes in front of it going backwards from the cost. This is the idea behind backpropagation. The gradients are passed backwards through the network and used with gradient descent to update the weights and biases. If a node has multiple outgoing nodes, you just sum up the gradients from each node.
+
+This is what a gradient means, it's a slope, how much you change the cost ∂C given a change in the weight. So a node with a larger gradient with respect to the cost is going to contribute a larger change to the cost. In this way, we can assign blame for the cost to each node. The larger the gradient for a node, the more blame it gets for the final cost. And the more blame a node has, the more we'll update it in the gradient descent step.
 
 Back propagation其实是根据反馈不管调整weights的过程，一般来说，要一组一组样本来做。得到的weights的变化值的维度与weights的维度完全相同。一组一组样本来做时，经常用到zip函数，zip可以把两个list转换成tuple形式，用在循环中。
 
@@ -87,6 +95,10 @@ First, you'll need to initialize the weights. We want these to be small such tha
 To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error. 在实际建模过程中，learning rate是从大往小试，如果使用的是Mean Square Error，一般从1开始试起。
 
 如果learning rate太大的话，training accuracy有可能始终很大，因为步长太长，导致在gradient descent的过程中没法取到minimal的值。这时候要减小learning rate.
+
+You might be tempted to set a really big learning rate, so the network learns really fast, right?
+
+Be careful! If the value is too large you could overshoot the target and eventually diverge. 
 
 ### (4). activation function and vanishing gradient
 
