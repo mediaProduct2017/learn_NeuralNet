@@ -126,6 +126,8 @@ The more hidden nodes you have, the more accurate predictions the model will mak
 
 ### (8). stochastic gradient descent and mini-batch gradient descent
 
+Ideally, the entire dataset would be fed into the neural network on each forward pass, but in practice, it's not practical due to memory constraints.
+
 In practice, it's common to feed in multiple data examples in each forward pass rather than just 1. The reasoning for this is the examples can be processed in parallel, resulting in big performance gains. The number of examples is called the batch size. Common numbers for the batch size are 32, 64, 128, 256, 512. Generally, it's the most we can comfortably fit in memory.
 
 理论上讲，应该使用whole-batch gradient descent，在每次更新weights时，都使用所有样本来更新，但在实际上，当样本量非常大的时候，这是不可行的，所以就要使用stochastic gradient descent。在进行online training时，可以每次只使用一个样本，这也算stochastic gradient descent，更常用的是mini-batch gradient descent，就是每个iteration随机选取一定数量的样本来进行训练，比如，随机选取128个样本，然后用这128个样本的X和y来进行训练。
@@ -163,6 +165,10 @@ Use the test data to view how well your network is modeling the data. If somethi
 ## 13. Neural noise
 
 不需要的feature加到input layer中，会增加noise。不需要的feaure的信息越多，noise越多，模型表现越差。总的来说，Neural net相比其他机器学习模型，更擅长过滤noise，但是，这并不意味着，对于所有类型的noise，neural net都更擅长过滤，有些类型的noise，其他模型过滤、处理起来反而更加擅长。
+
+很多时候，当我们加了更多的信息到模型中，不见得是加了更多的信号，很可能是加了更多的噪音。所以，不管是feature还是target，连续变量不见得就比0、1值更好，前者可能噪音更多，如果没有很好的降噪系统先来过滤一遍的话，不一定比后者效果好，0、1值的噪音少，可能更适合用来构建neural net. 另外，在连续变量中，往往隐含着很多的随机因素，而neural net的模型中是不考虑随机因素的，neural net并不能很好的处理模型中的随机因素，它处理的办法还是降噪，有一层或者几层layer实际上充当noise filter的作用，把数据中的随机因素给过滤掉。一般的线性随机模型处理噪音（数据中的随机因素）的思路不同，实在模型中加入一个随机项，比不加随机项可以略好的解释数据，但好的程度也有限，因为并不存在很好的随机模型，搞统计的人花了很多的心思在随机模型上，但是说实话，效果有限，性价比极低，加入随机项后，模型的复杂度大大增加（学习理解随机模型是非常痛苦的），但最终的效果仅有略微改善。
+
+不管是何种类型的数学模型，都需要在模型中加入假设，本质上是在人工去噪。没有额外假设的自由度高的模型，表面上看更加正确，但噪音太大，实用价值不高，这也是neural net发明多年，但影响不大的原因，wholly linked neural net肯定非常正确，但解决不了实际问题。CNN和RNN的牛逼之处在于，在neural net上加上了额外的假设，使得neural net具备了实用性（而不是像媒体说的，只是因为大数据和并行计算改变了neural net的行业趋势）。Tree recursive neural net与RNN相比，问题也在于自由度太高，实用性太小。博士论文nonequilibrium model和传统的equilibrium model相比，问题同样是自由度太高，实用性太小，所以无法得到其他研究人员的重视。
 
 ## 14. Sparse input的处理
 
