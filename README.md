@@ -24,6 +24,9 @@ Previously we've been using the sum of squared errors as the cost function in ou
 
 ![Cross entropy](images/cross.png)
 
+What's cool about using one-hot encoding for the label vector is that yj is 0 except for the one true class. Then, all terms in that sum except for where yj=1 are zero and the cross entropy is simply D=−ln
+y^ for the true label. For example, if your input image is of the digit 4 and it's labeled 4, then only the output of the unit corresponding to 4 matters in the cross entropy cost.
+
 ## 2. Forward propagtion, cost function and softmax regression
 
 当使用softmax regression作forward propagation时，最后一个layer是使用softmax function来计算，如果是k个分类，最后一层就有k个neuron，每个neuron的值就是exp（hx），然后将k个neuron的值进行归一化处理（除以k个neuron值的加和），k个neuron的值就变成了是每个分类的概率（k个概率的和为1）。最后，概率最大的那个neuron对应的分类作为预测的分类。
@@ -100,6 +103,12 @@ We'll also need to standardize the GRE and GPA data, which means to scale the va
 
 对于pandas的data frame中的列series来讲，可以用mean()和std()来直接作用于series求相应的值。
 
+实际上，即使我们不是把sigmoid function用作activation function, 我们也要对数据做normalization，因为我们不想让数据太大，也不想让数据太小，太大的数据与太小的数据相加，在数值计算中很容易出问题。
+
+Data normalization之后(各个方向上的数据都比较均衡)，该gradient descent的过程中，optimizer也能更快的达到minimal point.
+
+在normalize的过程中，也不一定除以标准差，除以范围（数据的最大值-最小值）也是不错的选择。
+
 ### (2). weights
 
 First, you'll need to initialize the weights. We want these to be small such that the input to the sigmoid is in the linear region near 0 and not squashed at the high and low ends. It's also important to initialize them randomly so that they all have different starting values and diverge, breaking symmetry. So, we'll initialize the weights from a normal distribution centered at 0. A good value for the scale is 1/√n，where n is the number of input units. This keeps the input to the sigmoid low for increasing numbers of input units.
@@ -109,6 +118,8 @@ First, you'll need to initialize the weights. We want these to be small such tha
 To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error. 在实际建模过程中，learning rate是从大往小试，如果使用的是Mean Square Error，一般从1开始试起。
 
 如果learning rate太大的话，training accuracy有可能始终很大，因为步长太长，导致在gradient descent的过程中没法取到minimal的值。这时候要减小learning rate.
+
+在stochastic gradient descent中，可以在进行过程中让learning rate越来越小，比如exponential decay.
 
 You might be tempted to set a really big learning rate, so the network learns really fast, right?
 
@@ -128,8 +139,6 @@ It's possible that a large gradient can set the weights such that a ReLU unit wi
 
 From Andrej Karpathy's CS231n course:
 >Unfortunately, ReLU units can be fragile during training and can “die”. For example, a large gradient flowing through a ReLU neuron could cause the weights to update in such a way that the neuron will never activate on any datapoint again. If this happens, then the gradient flowing through the unit will forever be zero from that point on. That is, the ReLU units can irreversibly die during training since they can get knocked off the data manifold. For example, you may find that as much as 40% of your network can be “dead” (i.e. neurons that never activate across the entire training dataset) if the learning rate is set too high. With a proper setting of the learning rate this is less frequently an issue.
-
-
 
 ### (5). local minimum
 
@@ -153,13 +162,17 @@ The more hidden nodes you have, the more accurate predictions the model will mak
 
 ### (8). stochastic gradient descent and mini-batch gradient descent
 
+Mini-batching is a technique for training on subsets of the dataset instead of all the data at one time. This provides the ability to train a model, even if a computer lacks the memory to store the entire dataset.
+
 Ideally, the entire dataset would be fed into the neural network on each forward pass, but in practice, it's not practical due to memory constraints.
 
 In practice, it's common to feed in multiple data examples in each forward pass rather than just 1. The reasoning for this is the examples can be processed in parallel, resulting in big performance gains. The number of examples is called the batch size. Common numbers for the batch size are 32, 64, 128, 256, 512. Generally, it's the most we can comfortably fit in memory.
 
-理论上讲，应该使用whole-batch gradient descent，在每次更新weights时，都使用所有样本来更新，但在实际上，当样本量非常大的时候，这是不可行的，所以就要使用stochastic gradient descent。在进行online training时，可以每次只使用一个样本，这也算stochastic gradient descent，更常用的是mini-batch gradient descent，就是每个iteration随机选取一定数量的样本来进行训练，比如，随机选取128个样本，然后用这128个样本的X和y来进行训练。
+理论上讲，应该使用whole-batch gradient descent，在每次更新weights时，都使用所有样本来更新，但在实际上，当样本量非常大的时候，这是不可行的，所以就要使用stochastic gradient descent。在进行online training时，可以每次只使用一个样本，这也算stochastic gradient descent，更常用的是mini-batch gradient descent，就是每个iteration随机选取一定数量的样本来进行训练，比如，随机选取128个样本，然后用这128个样本的X和y来进行训练（mini-batch的样本数一般是在1到1000之间）。
 
 在train函数中，用来存放样本的array不宜占太大的空间，要么就留mini-batch的样本大小，比如128行，要么，就只用一行，反复使用即可，否则的话，是对内存空间的极大浪费。
+
+一般的，如果计算loss需要n个操作的话，计算对应的gradient需要3*n个操作，也就是时间翻三倍。
 
 ## 9. neural net和deep learning所解决的问题
 
@@ -181,7 +194,11 @@ Neural network也可以设置unit test，一般测试data path, loaded data type
 
 Chosen of the number of iterations, the learning rate, the number of hidden nodes
 
+mini-batch的batch size其实也是一个可选的参数
+
 For model comlexity gragh, the x axis is the number of iterations, the y axis is training loss and validation loss.
+
+选模型的连续参数往往是用training error，选模型的其他参数往往参照validation error，最后，在生产环境下，再检查test error.
 
 ## 12. Check out the predictions with testing data
 
@@ -196,6 +213,8 @@ Use the test data to view how well your network is modeling the data. If somethi
 很多时候，当我们加了更多的信息到模型中，不见得是加了更多的信号，很可能是加了更多的噪音。所以，不管是feature还是target，连续变量不见得就比0、1值更好，前者可能噪音更多，如果没有很好的降噪系统先来过滤一遍的话，不一定比后者效果好，0、1值的噪音少，可能更适合用来构建neural net. 另外，在连续变量中，往往隐含着很多的随机因素，而neural net的模型中是不考虑随机因素的，neural net并不能很好的处理模型中的随机因素，它处理的办法还是降噪，有一层或者几层layer实际上充当noise filter的作用，把数据中的随机因素给过滤掉。一般的线性随机模型处理噪音（数据中的随机因素）的思路不同，实在模型中加入一个随机项，比不加随机项可以略好的解释数据，但好的程度也有限，因为并不存在很好的随机模型，搞统计的人花了很多的心思在随机模型上，但是说实话，效果有限，性价比极低，加入随机项后，模型的复杂度大大增加（学习理解随机模型是非常痛苦的），但最终的效果仅有略微改善。
 
 不管是何种类型的数学模型，都需要在模型中加入假设，本质上是在人工去噪。没有额外假设的自由度高的模型，表面上看更加正确，但噪音太大，实用价值不高，这也是neural net发明多年，但影响不大的原因，wholly linked neural net肯定非常正确，但解决不了实际问题。CNN和RNN的牛逼之处在于，在neural net上加上了额外的假设，使得neural net具备了实用性（而不是像媒体说的，只是因为大数据和并行计算改变了neural net的行业趋势）。Tree recursive neural net与RNN相比，问题也在于自由度太高，实用性太小。博士论文nonequilibrium model和传统的equilibrium model相比，问题同样是自由度太高，实用性太小，所以无法得到其他研究人员的重视。
+
+去除数据噪音的过程，其实也就是generalize a model的过程，如果不能有效的去除噪音的话，training a model just makes it memerize the training data.
 
 ## 14. Sparse input的处理
 
