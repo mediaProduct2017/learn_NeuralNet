@@ -18,11 +18,21 @@ Neural net在众多的建模问题中非常管用，是一种新的建模技术�
 
 Logistic regression和neural network的cost function除了用上面的形式外，其实也可以用最简单的mean squared error，实际值就是0或者1，预测值就是所得到的0到1的概率。
 
-不管cost function用上面的形式，还是用mean squared error，对实际的计算没有影响，因为上面cost function的gradient的计算公式与mean squared error的gradient的计算公式完全相同。
+不管cost function用上面的形式，还是用mean squared error，对实际的计算没有影响，因为上面cost function的gradient的计算公式与mean squared error的gradient的计算公式完全相同。（对于forward pass用sigmoid function做activation的二分类问题，可以用mean squared error来做cost function，但是对于forward pass用softmax function做activation的多分类问题，就不能用mean squared error做cost function了，需要引入cross entropy等cost function.）
+
+Previously we've been using the sum of squared errors as the cost function in our networks, but in those cases we only have singular (scalar) output values. When you're using softmax, however, your output is a vector. We want our error to be proportional to how far apart these vectors (the label vectors and the prediction vectors) are. To calculate this distance, we'll use the cross entropy. Then, our goal when training the network is to make our prediction vectors as close as possible to the label vectors by minimizing the cross entropy. The cross entropy calculation is shown below:
+
+![Cross entropy](images/cross.png)
 
 ## 2. Forward propagtion, cost function and softmax regression
 
 当使用softmax regression作forward propagation时，最后一个layer是使用softmax function来计算，如果是k个分类，最后一层就有k个neuron，每个neuron的值就是exp（hx），然后将k个neuron的值进行归一化处理（除以k个neuron值的加和），k个neuron的值就变成了是每个分类的概率（k个概率的和为1）。最后，概率最大的那个neuron对应的分类作为预测的分类。
+
+The softmax function squashes the outputs of each unit to be between 0 and 1, just like a sigmoid. It also divides each output such that the total sum of the outputs is equal to 1. The output of the softmax function is equivalent to a categorical probability distribution, it tells you the probability that any of the classes are true.
+
+The only real difference between this and a normal sigmoid is that the softmax normalizes the outputs so that they sum to one. In both cases you can put in a vector and get out a vector where the outputs are a vector of the same size, but all the values are squashed between 0 and 1. You would use a sigmoid with one output unit for binary classification. But if you’re doing multinomial classification, you’d want to use multiple output units (one for each class) and the softmax activation on the output.
+
+The softmax function squashes it's inputs, typically called logits or logit scores, to be between 0 and 1 and also normalizes the outputs such that they all sum to 1. This means the output of the softmax function is equivalent to a categorical probability distribution. It's the perfect function to use as the output activation for a network predicting multiple classes.
 
 当使用softmax regression作拟合时，所使用的cost function一般用cross entropy cost function (it is called cross entropy error or cross entropy cost)，对于softmax function算出的k个neuron的概率值，只有实际分类对应的那个neuron上的概率值会被保留，然后log求和。比如，总共有5个分类，某个实际分类y1i = 列向量[1, 0, 0, 0, 0]，k个neuron的概率值的向量y2i = 列向量[p1, p2, p3, p4, p5]，两个向量的内积（点乘）或者y1i转置后叉乘logy2i，得到一个值yi，最终的cost function就是把m个样本的yi加起来，最后取负值（相反数）。
 
@@ -66,8 +76,9 @@ Neural net不只可以用于分类（无序类或有序类），也可以用于�
 
 传统上，连续值的建模只是使用简单的linear regresssion. 实际上，可以使用neural net来抓住问题中的非线性特征，在最后一层output中，可以使用$f(x)=x$这个简单的activation function（之前各层的activation function仍然使用常用的sigmoid function），就可以得到连续的预测值，而且预测值的范围可以从无穷小到无穷大，不再局限于（0，1）。
 
-## 7. Dummy variable 
+## 7. Dummy variable and one-hot encoding
 
+### (1). dummy variable
 The rank feature is categorical, the numbers don't encode any sort of relative values. Rank 2 is not twice as much as rank 1, rank 3 is not 1.5 more than rank 2. Instead, we need to use dummy variables to encode rank, splitting the data into four new columns encoded with ones or zeros. Rows with rank 1 have one in the rank 1 dummy column, and zeros in all other columns. Rows with rank 2 have one in the rank 2 dummy column, and zeros in all other columns. And so on.
 
 Pandas中有一个很好的函数get_dummies（pd.get_dummies），可以很方面的把categorical data转换成dummy variable. 之后也是使用pandas中的两个函数，concat用来把新的dummy variable连接在data frame中，drop用来去掉已经转换过的原来的列。
@@ -75,6 +86,9 @@ Pandas中有一个很好的函数get_dummies（pd.get_dummies），可以很方�
 在处理完dummy variable之后，模型中除了连续的变量以外，就只剩0和1的数值了。对于dummy variable的某一列，在样本中要至少出现几百次才有意义，如果只出现几十次，这个dummy variable都没有存在的意义，可以直接drop.
 
 如果data frame中有除连续数值和0、1之外的其他值，比如一些字符串，可以写一个get_target_for_label()函数，函数的argument是字符串，return的结果是0或者1. 调用该函数就可以把字符串label转换为0和1.
+
+### (2).one-hot encoding
+Transforming your labels into one-hot encoded vectors is pretty simple with scikit-learn using LabelBinarizer. 
 
 ## 8. Requirements of gradient decent
 
@@ -103,6 +117,19 @@ Be careful! If the value is too large you could overshoot the target and eventua
 ### (4). activation function and vanishing gradient
 
 The maximum derivative of the sigmoid function is 0.25, so the errors in the output layer get reduced by at least 75%, and errors in the hidden layer are scaled down by at least 93.75%! You can see that if you have a lot of layers, using a sigmoid activation function will quickly reduce the weight steps to tiny values in layers near the input. This is known as the vanishing gradient problem. Later in the course you'll learn about other activation functions that perform better in this regard and are more commonly used in modern network architectures.
+
+The derivative of the sigmoid maxes out at 0.25 (see above). This means when you're performing backpropagation with sigmoid units, the errors going back into the network will be shrunk by at least 75% at every layer. For layers close to the input layer, the weight updates will be tiny if you have a lot of layers and those weights will take a really long time to train. Due to this, sigmoids have fallen out of favor as activations on hidden units.
+
+Instead of sigmoids, most recent deep learning networks use rectified linear units (ReLUs) for the hidden layers. A rectified linear unit has output 0 if the input is less than 0, and raw output otherwise. That is, if the input is greater than 0, the output is equal to the input.
+
+ReLU activations are the simplest non-linear activation function you can use. When the input is positive, the derivative is 1, so there isn't the vanishing effect you see on backpropagated errors from sigmoids. Research has shown that ReLUs result in much faster training for large networks. Most frameworks like TensorFlow and TFLearn make it simple to use ReLUs on the the hidden layers, so you won't need to implement them yourself.
+
+It's possible that a large gradient can set the weights such that a ReLU unit will always be 0. These "dead" units will always be 0 and a lot of computation will be wasted in training.
+
+From Andrej Karpathy's CS231n course:
+>Unfortunately, ReLU units can be fragile during training and can “die”. For example, a large gradient flowing through a ReLU neuron could cause the weights to update in such a way that the neuron will never activate on any datapoint again. If this happens, then the gradient flowing through the unit will forever be zero from that point on. That is, the ReLU units can irreversibly die during training since they can get knocked off the data manifold. For example, you may find that as much as 40% of your network can be “dead” (i.e. neurons that never activate across the entire training dataset) if the learning rate is set too high. With a proper setting of the learning rate this is less frequently an issue.
+
+
 
 ### (5). local minimum
 
