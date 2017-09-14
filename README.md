@@ -43,7 +43,7 @@ The softmax function squashes it's inputs, typically called logits or logit scor
 
 C个feature，每个feature的维度是d（对于图像识别，是C个分类，d个像素点）。W.x是线性函数的矩阵形式。
 
-## 3. Wholly linked neural network
+## 3. Wholly (fully) linked neural network
 
 此处使用的neural network是wholly linked neural network，没有额外的assumption，完全根据数据来拟合系数参数，是理论上最正确的一种neural network，但因为所需数据较多，计算量较大，实用价值较小。
 
@@ -190,7 +190,7 @@ neural net和deep learning的威力在于，通过选择不同的连接假设和
 
 Neural network也可以设置unit test，一般测试data path, loaded data type, activation function, method for backpropagation and method for foward propagation.
 
-## 11. Validation
+## 11. Validation of hyperparameters
 
 Chosen of the number of iterations, the learning rate, the number of hidden nodes
 
@@ -200,11 +200,15 @@ For model comlexity gragh, the x axis is the number of iterations, the y axis is
 
 选模型的连续参数往往是用training error，选模型的其他参数往往参照validation error，最后，在生产环境下，再检查test error.
 
+validation往往用accuracy，就是(true positives+true negatives)/total.
+
 ## 12. Check out the predictions with testing data
 
 Use the test data to view how well your network is modeling the data. If something is completely wrong here, make sure each step in your network is implemented correctly.
 
 不管对于prediction还是实际值，都把自变量与因变量的关系曲线画出来。
+
+test可能会用到confusion matrix，也可能会用到precision和recall。precision是预测为positive中实际的比率，recall是实际为positive中预测为positive的比率。precision和recall结合起来还可以算出一个metrics，叫做F score。
 
 ## 13. Neural noise
 
@@ -221,3 +225,31 @@ Use the test data to view how well your network is modeling the data. If somethi
 在neural network中，input layer往往非常庞大，hidden layer和output的node数有限，所以input到hidden计算量很大，而hidden到output计算量有限。input layer存在很多0的时候，在计算上就有优化的余地。一方面，可以自己来优化，主要是两点，一是只算input为1的部分，二是input为1的话，可以直接把weights相加，不用算乘法了。用矩阵乘法的话，有可能numpy会自动进行上面提到的两点优化（不是很确定，担心的话，就自己优化）。
 
 在做back propagation更新weights的时候，也可以只更新input为1的node的weights，计算量会大大减小。
+
+## 15. Overfitting
+
+当数据相对于模型规模不够的时候，模型的自由度就太大，事实上可能产生多个模型，这时候overfitting的问题就产生了，我们很可能选择一个错误的模型。
+
+The model that is just right to your data is very hard to optimize （没有分析表达式的话很难去拿到正确的解）. So in practice, we always try networks that are too big (模型参数太多) for our data and then we try our best to prevent them from overfitting.
+
+Methods that can prevent overfitting:
+
+1. validation error and model complexity gragh
+
+2. regularization
+
+L2 regularization: the idea is to add another term to the loss, which penalizes large weights (biases are not included). The L2 norm stands for the sum of the squares of the individual elements in a vector.
+
+3. Dropout: A Simple Way to Prevent Neural Networks from Overfitting
+
+Dropout is a regularization technique for reducing overfitting. The technique temporarily drops units (artificial neurons) from the network, along with all of those units' incoming and outgoing connections. Randomly killing neurons make the network not rely on a particular input or activation, and make the network have redundant mechanism to model the information (dropout的有效性也说明简单的模型反而更加有效，哪怕这种简单只是一种随机的简单，哪怕这种简单只是让模型在训练时变得更简单。也正是因为简单的模型更有效，所以CNN、RNN比wholly linked network效果要好). It may be inefficient but can make the model more robust and prevent overfitting. You should only drop units while training the model. During validation or testing, you should keep all of the units to maximize accuracy.
+
+对于dropout，在train的时候因为要杀掉一半的neuron，所以在计算training error时，该层保留下的neuron的activate后的值都要乘以2（因为少了一半的信号，所以剩下的信号要乘以2）. 在validate的时候因为用的是全部的neuron，所以在计算validation error时，不需要再像前面一样乘以2.
+
+建模过程中，首先尝试小的模型，如果dropout等各种技术都用上去，还是没有好的结果，再尝试做更大的模型。
+
+## 16. Weight sharing and statistical invariant
+
+When you know that two inputs can contain the same kind of information, then you share their weights, and train the weights jointly for those inputs. 
+
+在ConvNet中，sharing weights表示的是像素的前后（或者上下）顺序关系，因为都是表示这种关系，比如每一个patch对应着一个neuron，算出一个值（这和每三个连续的像素算出一个值的道理是一样的）或多个值，所以从patch求neuron的过程，对于每一个patch，使用的weights都是不变的，表示的都是相同的位置关系。
