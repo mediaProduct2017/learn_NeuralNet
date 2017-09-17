@@ -18,7 +18,9 @@ Neural net在众多的建模问题中非常管用，是一种新的建模技术�
 
 Logistic regression和neural network的cost function除了用上面的形式外，其实也可以用最简单的mean squared error，实际值就是0或者1，预测值就是所得到的0到1的概率。
 
-不管cost function用上面的形式，还是用mean squared error，对实际的计算没有影响，因为上面cost function的gradient的计算公式与mean squared error的gradient的计算公式完全相同。（对于forward pass用sigmoid function做activation的二分类问题，可以用mean squared error来做cost function，但是对于forward pass用softmax function做activation的多分类问题，就不能用mean squared error做cost function了，需要引入cross entropy等cost function.）
+对于二分类问题，cost function用上面的形式，在做back propagation时，与output是连续函数并用$f(x)=x$来做activaton时的结果是一样的。（对于forward pass用sigmoid function做activation的二分类问题，一般用上面的函数来做cost function，但是对于forward pass用softmax function做activation的多分类问题，需要引入cross entropy等cost function.）
+
+对于二分类问题，如果用$f(x)=x$来做activaton，结果为正一个类，结果为负是另一个类，其实也是可以用MSE来做cost function的，结果也与上面的cost function用作二分类的结果一样，只是在实际上，没必要这么做，就用上面的cost function就好了。
 
 Previously we've been using the sum of squared errors as the cost function in our networks, but in those cases we only have singular (scalar) output values. When you're using softmax, however, your output is a vector. We want our error to be proportional to how far apart these vectors (the label vectors and the prediction vectors) are. To calculate this distance, we'll use the cross entropy. Then, our goal when training the network is to make our prediction vectors as close as possible to the label vectors by minimizing the cross entropy. The cross entropy calculation is shown below:
 
@@ -28,6 +30,12 @@ What's cool about using one-hot encoding for the label vector is that yj is 0 ex
 y^ for the true label. For example, if your input image is of the digit 4 and it's labeled 4, then only the output of the unit corresponding to 4 matters in the cross entropy cost.
 
 ## 2. Forward propagtion, cost function and softmax regression
+
+矩阵乘法的本质是对一个或多个向量进行线性变换（旋转和伸缩）。如果是列向量，多个线性变化的计算顺序是从右向左的。如果是行向量，多个线性变换的计算顺序是从左向右的，也就是numpy和tensorflow所使用的顺序。多个行向量同样组成一个矩阵。
+
+[神经网络中数学知识简易梳理](https://zhuanlan.zhihu.com/p/27664917)
+
+矩阵的特征向量表征了这个线性变换的旋转的方向，特征值表征了这个线性变换的伸缩的大小。
 
 当使用softmax regression作forward propagation时，最后一个layer是使用softmax function来计算，如果是k个分类，最后一层就有k个neuron，每个neuron的值就是exp（hx），然后将k个neuron的值进行归一化处理（除以k个neuron值的加和），k个neuron的值就变成了是每个分类的概率（k个概率的和为1）。最后，概率最大的那个neuron对应的分类作为预测的分类。
 
@@ -48,6 +56,8 @@ C个feature，每个feature的维度是d（对于图像识别，是C个分类，
 此处使用的neural network是wholly linked neural network，没有额外的assumption，完全根据数据来拟合系数参数，是理论上最正确的一种neural network，但因为所需数据较多，计算量较大，实用价值较小。
 
 ## 4. Back propagation
+
+Back propagation的本质就是微积分中的求偏导，求出偏导来，就能用gradient descent的方法来更新weights，一步步逼近最优解. 对于每个weight，都要求偏导。Cost相对于每个weight的偏导，可以通过chain rule来推导。
 
 最终的output的error是预测值（对真实值）的偏离，但这种偏离不只是由最后一层neuron造成的，而是由多层neuron累积而成的，所以，每一层neuron都存在其预测值的偏离，而这种预测值的偏离误差是可以用后一层的预测值的偏离误差计算出来的，计算公式就是back propagation的公式，这个公式在数学上是可以证明的。
 
@@ -139,6 +149,8 @@ It's possible that a large gradient can set the weights such that a ReLU unit wi
 
 From Andrej Karpathy's CS231n course:
 >Unfortunately, ReLU units can be fragile during training and can “die”. For example, a large gradient flowing through a ReLU neuron could cause the weights to update in such a way that the neuron will never activate on any datapoint again. If this happens, then the gradient flowing through the unit will forever be zero from that point on. That is, the ReLU units can irreversibly die during training since they can get knocked off the data manifold. For example, you may find that as much as 40% of your network can be “dead” (i.e. neurons that never activate across the entire training dataset) if the learning rate is set too high. With a proper setting of the learning rate this is less frequently an issue.
+
+用ReLU做activation时，其实有很多node是被筛选掉的，如果input的值是正负各一半，weights的值也是正负各一半的话，理论上，大概有一半的input node在最终的模型中是没有用的，进入到下一层，输入是正值，weights的值是随机正负各一半的话，这一层又有一半的node因为输出是负值而变得没用，这样的话，其实也人为减少了参数个数，防止overfitting，通过relu函数，只筛选了其中部分node，整个模型是一个稀疏的模型。
 
 ### (5). local minimum
 
