@@ -79,7 +79,7 @@ back propagation: calculate the gradient for gradient descent of loss function; 
 
 ## 5. Function and strength
 
-neural network的强大之处在于，多个线性boundary的结合可以模拟任何复杂的非线性的boundary，所以通过多层多个neuron的设置，可以用neural network逼近任何复杂的函数，模拟该函数。
+neural network的强大之处在于，多个线性boundary的结合(hidden layer的每个node可以代表一个线性boundary)可以模拟任何复杂的非线性的boundary，所以通过多层多个neuron的设置，可以用neural network逼近任何复杂的函数，模拟该函数。
 
 线性规划的意义和neural network的意义是类似的，虽然实际情况是非线性的，但在线性规划中，通过设置多条直线的boundary，可以模拟非线性情况，所以，线性规划在运筹学中的应用才能如此广泛。
 
