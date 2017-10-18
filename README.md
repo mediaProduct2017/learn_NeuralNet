@@ -123,6 +123,8 @@ Data normalization之后(各个方向上的数据都比较均衡)，该gradient 
 
 First, you'll need to initialize the weights. We want these to be small such that the input to the sigmoid is in the linear region near 0 and not squashed at the high and low ends. It's also important to initialize them randomly so that they all have different starting values and diverge, breaking symmetry. So, we'll initialize the weights from a normal distribution centered at 0. A good value for the scale is 1/√n，where n is the number of input units. This keeps the input to the sigmoid low for increasing numbers of input units.
 
+还有一种做法是，用tensorflow中的tf.truncated\_normal()函数，mean=0, stddev=0.1
+
 ### (3). learning rate
 
 To make learning rate between 0.01 and 0.1 (也可能是0.1到1), we use Mean Square Error instead of Sum Square Error. 在实际建模过程中，learning rate是从大往小试，如果使用的是Mean Square Error，一般从1开始试起。
