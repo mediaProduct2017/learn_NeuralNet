@@ -123,7 +123,9 @@ Data normalization之后(各个方向上的数据都比较均衡)，该gradient 
 
 First, you'll need to initialize the weights. We want these to be small such that the input to the sigmoid is in the linear region near 0 and not squashed at the high and low ends. It's also important to initialize them randomly so that they all have different starting values and diverge, breaking symmetry. So, we'll initialize the weights from a normal distribution centered at 0. A good value for the scale is 1/√n，where n is the number of input units. This keeps the input to the sigmoid low for increasing numbers of input units.
 
-还有一种做法是，用tensorflow中的tf.truncated\_normal()函数，mean=0, stddev=0.1
+还有一种做法是，用tensorflow中的tf.truncated\_normal()函数，mean=0, stddev=0.1. 特别是对于很大的network，truncated normal要好于normal。
+
+如果在模型中引入bias，bias也要使用tf.truncated\_normal()函数，mean=0, stddev=0.1来做初始化。
 
 ### (3). learning rate
 
