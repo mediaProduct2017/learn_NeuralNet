@@ -33,9 +33,13 @@ y^ for the true label. For example, if your input image is of the digit 4 and it
 
 矩阵乘法的本质是对一个或多个向量进行线性变换（旋转和伸缩）。如果是列向量，多个线性变化的计算顺序是从右向左的。如果是行向量，多个线性变换的计算顺序是从左向右的，也就是numpy和tensorflow所使用的顺序。多个行向量同样组成一个矩阵。
 
+矩阵可以理解成一个线性变换，也可以理解成一个空间（不同的列就是这个空间的不同的基，空间的维度就是秩，或者说是线性无关列向量的个数）。
+
 [神经网络中数学知识简易梳理](https://zhuanlan.zhihu.com/p/27664917)
 
-矩阵的特征向量表征了这个线性变换的旋转的方向，特征值表征了这个线性变换的伸缩的大小。
+[正交基与非正交基在信号表达上的区别](http://blog.csdn.net/zsz_shsf/article/details/76640119)
+
+矩阵的特征向量表征了这个线性变换的旋转的方向（多个特征向量表示分别对原空间的基进行旋转，不同的基有不同的旋转方向），特征值表征了这个线性变换的伸缩的大小。
 
 当使用softmax regression作forward propagation时，最后一个layer是使用softmax function来计算，如果是k个分类，最后一层就有k个neuron，每个neuron的值就是exp（hx），然后将k个neuron的值进行归一化处理（除以k个neuron值的加和），k个neuron的值就变成了是每个分类的概率（k个概率的和为1）。最后，概率最大的那个neuron对应的分类作为预测的分类。
 
