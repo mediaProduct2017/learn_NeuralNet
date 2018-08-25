@@ -18,6 +18,10 @@ Neural net在众多的建模问题中非常管用，是一种新的建模技术�
 
 Logistic regression和neural network的cost function除了用上面的形式外，其实也可以用最简单的mean squared error，实际值就是0或者1，预测值就是所得到的0到1的概率。
 
+logistic function是1/(1+e^(-z))，如果起始数据是二维的，z就是x和y的线性函数，当z=0的时候，logistic function的值是0.5，是最终分类的分界线。ax+by+c=0就是二维坐标系里的分界线，肯定是线性分界线。
+
+support vector machine和两层（不包括输入层）的神经网络更像，首先要经历变换，可能是线性变换，也可能是非线性变换，还可能有维度的变换（比如神经网络模型开始是二维，如果hidden nodes有三个的话，二维就变成了三维；svm的维度变换也是一样，所谓的核函数就是用来做这个变换的，可能是线性核函数，也可能是非线性核函数）；其次是分类，神经网络的话，分类的forward function就是logistic function，z的正负决定了最终的分类，在二维坐标（hidden layer是几维，此处就是几维）表现出来的话，就看在直线ax+by+c=0的哪一边，拟合时的objective function用的是上面的函数。svm的话，分类的函数在二维坐标表现出来的话，可能是一条直线，也可能是一条曲线，看点在线的哪一边，拟合时的objective function往往是在高维上实现的一个平面（线性组合），目标往往是各个点到该平面的距离的和最短（实际的函数要更复杂），在预测时，一个点离这个平面越远，分到某个类的概率越大，所以预测时svm给出的概率值本质上是距离。
+
 对于二分类问题，cost function用上面的形式，在做back propagation时，与output是连续函数并用$f(x)=x$来做activaton时的结果是一样的。（对于forward pass用sigmoid function做activation的二分类问题，一般用上面的函数来做cost function，但是对于forward pass用softmax function做activation的多分类问题，需要引入cross entropy等cost function.）
 
 对于二分类问题，如果用$f(x)=x$来做activaton，结果为正一个类，结果为负是另一个类，其实也是可以用MSE来做cost function的，结果也与上面的cost function用作二分类的结果一样，只是在实际上，没必要这么做，就用上面的cost function就好了。
