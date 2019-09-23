@@ -190,6 +190,10 @@ In practice, it's common to feed in multiple data examples in each forward pass 
 
 理论上讲，应该使用whole-batch gradient descent，在每次更新weights时，都使用所有样本来更新，但在实际上，当样本量非常大的时候，这是不可行的，所以就要使用stochastic gradient descent。在进行online training时，可以每次只使用一个样本，这也算stochastic gradient descent，更常用的是mini-batch gradient descent，就是每个iteration随机选取一定数量的样本来进行训练，比如，随机选取128个样本，然后用这128个样本的X和y来进行训练（mini-batch的样本数一般是在1到1000之间）。
 
+whole-batch gradient descent的好处是稳定，取定初始值以后，一定会收敛到离初始值最近（更准确的说，是初始值对应的）的局部最优（也可能是全局最优）。stochastic gradient descent的特点是更新快，针对每一个样本都更新权重，重新计算预测值，很不稳定，可能在好几个局部最优来回的跳，好处是有可能脱离当前的局部最优，得到更好的最优解。mini-batch gradient descent介于二者之间，稳定性比较适中，既可能跳出局部最优，也不会非常不稳定无法在某一个局部最优的区域做一些深入，所以mini-batch gradient descent。
+
+对于逻辑回归这种cost function是凸函数的情况，以上三种梯度下降方法最终结果都是一样的，甚至没有优劣，stochastic gradient descent虽然参数更新的快，但也有可能向反方向更新，最终达到收敛并不见得更快。stochastic gradient descent可以只做一次随机化（甚至不做随机化，收敛的结果也许并不会有什么不同，尤其是对于凸函数来说），但最好还是在每个iteration或者epoch都做一次随机化，这样才是标准做法。
+
 在train函数中，用来存放样本的array不宜占太大的空间，要么就留mini-batch的样本大小，比如128行，要么，就只用一行，反复使用即可，否则的话，是对内存空间的极大浪费。
 
 一般的，如果计算loss需要n个操作的话，计算对应的gradient需要3*n个操作，也就是时间翻三倍。
