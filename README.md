@@ -202,6 +202,8 @@ whole-batch gradient descent的好处是稳定，取定初始值以后，一定�
 
 stochastic gradient descent做随机化的原因是，如果不做随机化，每次迭代的时候不断更新权重走的都是相同的路径，总是前面的数据先影响权重，后面的数据后影响权重。这样的话，即使在同一个局部最优下做优化（或者说是在凸函数情况下做优化），结果也可能和whole-batch gradient descent不同（虽然差异很可能不大，但还是错的）。如果做了随机化，更新权重的路径再每次迭代的时候就是不断变化的，总体来说就和全量梯度下降用全体数据更新权重没有什么不同了。也就是stochastic gradient descent与whole-batch gradient descent在某一个局部最优的区域内最终结果相同，但过程波动更大，正是这种波动可能带来更多的局部最优（每次跑随机的得到的局部最优不一定相同），所以有一定的好处。不多，对于凸函数来说，stochastic gradient descent与whole-batch gradient descent都一样，并没有什么优势。stochastic gradient descent相对whole-batch gradient descent的坏处是，stochastic gradient descent针对每个样本都要更新权重，如果预测函数比较快还好，如果模型的预测函数比较慢，每个样本都更新权重会导致训练非常非常慢，正是由于这一点，才在stochastic gradient descent与whole-batch gradient descent之间取了一个中间点，mini-batch stochastic gradient descent，既带来一定的波动性可以拿到多个局部最优，又不至于每个样本都更新权重，而是一批一批样本来更新，保证了训练的速度。对于凸函数来讲，只有一个全局最优，不需要多个局部最优，最好就使用全量梯度下降就行了，或者使用Adam，学习率可以自动变化，能拿到更精确的全局最优。如果模型预测速度很快（比如线性方程，或者sigmoid函数，或者其他计算很快的非凸函数复杂模型），每个样本更新权重也没啥影响，用随机梯度下降就可以了，如果cost function不是凸函数，之后比较多个局部最优就可以了。
 
+需要注意的是，如果是全量梯度下降，learning rate一定要很小（特别是没用mean square error的时候），否则系数可能变化太大导致产生数值计算中的负无穷大或者正无穷大。如果是全量梯度下降，因为每个iteration权重才更新一次，实际上是会影响收敛的速度的，可能不如随机梯度下降的收敛速度快，甚至可能要慢的多。
+
 在train函数中，用来存放样本的array不宜占太大的空间，要么就留mini-batch的样本大小，比如128行，要么，就只用一行，反复使用即可，否则的话，是对内存空间的极大浪费。
 
 一般的，如果计算loss需要n个操作的话，计算对应的gradient需要3*n个操作，也就是时间翻三倍。
